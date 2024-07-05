@@ -1,0 +1,71 @@
+local HighlightESP = {}
+
+function HighlightESP.Create(Player)
+    -- Create a new Highlight instance
+    local Highlight = Instance.new("Highlight")
+    Highlight.Adornee = Player
+    Highlight.FillColor = Color3.fromRGB(0, 255, 196)
+    Highlight.FillTransparency = 0.5
+    Highlight.OutlineColor = Color3.fromRGB(0, 255, 196)
+    Highlight.OutlineTransparency = 0
+    Highlight.Parent = game:GetService("CoreGui")
+
+    local Updater
+
+    local function UpdateHighlight()
+        if Player and Player:IsA("Model") and Player:FindFirstChild("HumanoidRootPart") then
+            Highlight.Enabled = true
+        else
+            Highlight.Enabled = false
+            if not Player or not Player:FindFirstChild("HumanoidRootPart") then
+                Highlight:Destroy()
+                Updater:Disconnect()
+            end
+        end
+    end
+
+    Updater = game:GetService("RunService").RenderStepped:Connect(UpdateHighlight)
+
+    return Highlight
+end
+
+local Highlights = {}
+
+local function EnableHighlightESP()
+    for _, Player in pairs(game:GetService("Workspace"):GetChildren()) do
+        if Player:IsA("Model") and Player:FindFirstChild("HumanoidRootPart") then
+            local Highlight = HighlightESP.Create(Player)
+            table.insert(Highlights, Highlight)
+        end
+    end
+end
+
+game.Workspace.DescendantAdded:Connect(function(i)
+    if i:IsA("Model") and i:FindFirstChild("HumanoidRootPart") then
+        local Highlight = HighlightESP.Create(i)
+        table.insert(Highlights, Highlight)
+    end
+end)
+
+game:GetService("Players").PlayerRemoving:Connect(function(player)
+    for i, highlight in ipairs(Highlights) do
+        if highlight.Adornee == player.Character then
+            highlight:Destroy()
+            table.remove(Highlights, i)
+            break
+        end
+    end
+end)
+
+game:GetService("Players").PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            local Highlight = HighlightESP.Create(character)
+            table.insert(Highlights, Highlight)
+        end
+    end)
+end)
+
+EnableHighlightESP()
+
+return HighlightESP
