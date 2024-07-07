@@ -1,0 +1,30 @@
+local SelectPart = "Torso"
+local HBSizeX = 2.46
+local HBSizeY = 2.49
+local HBSizeZ = 2.32
+local HBTrans = 0.1
+
+local WhiteColor = BrickColor.new("White")
+
+local hitboxlist = {}
+
+task.spawn(function ()
+    while wait() do
+        for v, i in pairs(workspace:GetChildren()) do
+            if i:FindFirstChild("HumanoidRootPart") and not i:FindFirstChild("Fake") then
+                local FakeTorso = Instance.new("Part", i)
+                FakeTorso.CFrame = i.HumanoidRootPart.CFrame
+                FakeTorso.Name = SelectPart
+                FakeTorso.Size = Vector3.new(HBSizeX, HBSizeY, HBSizeZ)
+                FakeTorso.Anchored = true
+                FakeTorso.CanCollide = false
+                FakeTorso.Transparency = HBTrans
+                FakeTorso.BrickColor = WhiteColor  -- Apply the white color to the hitbox part
+                local subndom = Instance.new("Part", i)
+                subndom.Name = "Fake"
+                table.insert(hitboxlist, FakeTorso)
+                table.insert(hitboxlist, subndom)
+            end
+        end
+    end
+end)
